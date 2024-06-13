@@ -1,0 +1,33 @@
+[colors.cursor]
+cursor = "#a1a4b6"
+text = "#020202"
+
+[colors.primary]
+background = "#191c1f"
+foreground = "#deeaf4"
+
+[font]
+size = 16.0
+
+[font.normal]
+family = "JetBrains Mono"
+style = "Regular"
+
+[font.bold]
+family = "JetBrains Mono"
+style = "Bold"
+
+[font.italic]
+family = "JetBrains Mono"
+style = "Italic"
+
+[font.bold_italic]
+family = "JetBrains Mono"
+style = "Bold Italic"
+
+[window]
+opacity = 0.925
+
+[window.padding]
+x = 5
+y = 5
