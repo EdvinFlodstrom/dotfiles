@@ -1,0 +1,20 @@
+window {
+    background-color: #1E1E1E;
+    background-radius: 10px;
+    font-size: 20px;
+}
+
+entry {
+    background-color: #1E1E1E;
+    background-radius: 10px;
+    color: #ededed;
+    font-size: 25px;
+}
+
+entry:selected {
+    background-color: #444444;
+}
+
+label {
+    color: #C0C0C0;
+}

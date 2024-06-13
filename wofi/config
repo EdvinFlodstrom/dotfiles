@@ -1,0 +1,17 @@
+[wofi]
+# Settings for wofi window
+prompt = "Run: "
+border = false
+lines = 10
+width = 500
+height = 400
+theme = "default"
+
+# Behavior settings
+insensitive = false
+case-insensitive = true
+hide-search = false
+history = true
+
+# Use Wayland scaling
+scale = 1
