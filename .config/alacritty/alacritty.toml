@@ -6,6 +6,36 @@ text = "#020202"
 background = "#191c1f"
 foreground = "#deeaf4"
 
+[colors.normal]
+black = "#1E1E1E"
+red = "#D16969"
+green = "#B5CEA8"
+yellow = "#D7BA7D"
+blue = "#1f87cf"
+magenta = "#C792EA"
+cyan = "#86d0f6"
+white = "#D4D4D4"
+
+[colors.bright]
+black = "#546E7A"
+red = "#F44747"
+green = "#C3E88D"
+yellow = "#FFCB6B"
+blue = "#0000FF"
+magenta = "#C586C0"
+cyan = "#92dfff"
+white = "#DEEEEE"
+
+[colors.dim]
+black = "#1A1A1A"
+red = "#8A4B48"
+green = "#6F8B68"
+yellow = "#A38658"
+blue = "#3A6A8E"
+magenta = "#855A85"
+cyan = "#6A9FB5"
+white = "#A0A0A0"
+
 [font]
 size = 16.0
 
