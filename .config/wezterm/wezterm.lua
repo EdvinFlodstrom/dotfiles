@@ -11,7 +11,7 @@ return {
     }),
 
     -- Window settings
-    window_background_opacity = 0.925,
+    window_background_opacity = 0.975,
 
     window_padding = {
         left = 5,
