@@ -30,16 +30,15 @@ handle_file_conflict() {
 # Request input paths and filenames
 read -p "Enter the file path to the .docx document: " docx_path
 read -p "Enter the directory where the PDF should be saved (without file name): " output_folder
-read -p "Enter the desired PDF file name (without extension): " pdf_name
 
 # Ensure paths are absolute
 docx_path=$(realpath "$docx_path")
 output_folder=$(realpath "$output_folder")
-output_pdf="$output_folder/$pdf_name.pdf"
 
 read -p "Replace potential [Date] and [Company]? (y/n) " edit_answer
 
 # Initialize variables
+pdf_name=""
 temp_docx_path=""
 company_name=""
 current_date=$(date +"%Y-%m-%d")
@@ -48,6 +47,7 @@ current_date=$(date +"%Y-%m-%d")
 if [[ "$edit_answer" == "y" || "$edit_answer" == "Y" ]]; then
 	# Request company name
 	read -p "Enter the company name: " company_name
+	pdf_name="Personligt brev $company_name"
 
 	# Create a temporary copy of the .docx file
 	temp_docx_path=$(mktemp --suffix=".docx")
@@ -64,7 +64,12 @@ if [[ "$edit_answer" == "y" || "$edit_answer" == "Y" ]]; then
 
 	# Overwrite the input file path with the edited copy
 	docx_path="$temp_docx_path"
+else 
+	read -p "Enter the desired PDF file name (without extension): " pdf_name
 fi
+
+# Ensure path is absolute
+output_pdf="$output_folder/$pdf_name.pdf"
 
 # Handle PDF name conflicts
 output_pdf=$(handle_file_conflict "$output_pdf" "$pdf_name" "$output_folder")
