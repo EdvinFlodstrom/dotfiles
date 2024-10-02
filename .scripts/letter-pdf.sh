@@ -29,7 +29,18 @@ handle_file_conflict() {
 
 # Request input paths and filenames
 read -p "Enter the file path to the .docx document: " docx_path
+
+if [[ ! -f "$docx_path" ]]; then
+	echo "Error: The specified .docx file does not exist."
+	exit 1
+fi
+
 read -p "Enter the directory where the PDF should be saved (without file name): " output_folder
+
+if [[ ! -d "$output_folder" ]]; then
+	echo "Error: the specified output directory does not exist."
+	exit 1
+fi
 
 # Ensure paths are absolute
 docx_path=$(realpath "$docx_path")
@@ -46,7 +57,13 @@ current_date=$(date +"%Y-%m-%d")
 # Edit the file, if requested
 if [[ "$edit_answer" == "y" || "$edit_answer" == "Y" ]]; then
 	# Request company name
-	read -p "Enter the company name: " company_name
+	company_name=""
+
+	while [[ -z "$company_name" ]]
+	do
+		read -p "Enter the company name: " company_name
+	done
+	
 	pdf_name="Personligt brev $company_name"
 
 	# Create a temporary copy of the .docx file
@@ -81,7 +98,12 @@ libreoffice --headless --convert-to pdf --outdir "$output_folder" "$docx_path"
 input_docx_base=$(basename "$docx_path" .docx)
 generated_pdf="$output_folder/$input_docx_base.pdf"
 
-mv "$generated_pdf" "$output_pdf"
+if [[ -f "$generated_pdf" ]]; then
+	mv "$generated_pdf" "$output_pdf"
+else 
+	echo "Error: PDF generation failed."
+	exit 1
+fi
 
 # Notify user of the operation
 if [[ "$edit_answer" == "y" || "$edit_answer" == "Y" ]]; then
@@ -90,5 +112,8 @@ if [[ "$edit_answer" == "y" || "$edit_answer" == "Y" ]]; then
 	# Remove the temporary file after the PDF has been exported
 	rm -f "$temp_docx_path"
 fi
+
+# Clean up /tmp/docx_contents
+rm -rf /tmp/docx_contents
 
 echo "Successfully exported the specified document as a pdf to: $output_pdf"
