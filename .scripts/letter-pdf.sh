@@ -27,11 +27,46 @@ handle_file_conflict() {
 	echo "$output_pdf"
 }
 
-# Request input paths and filenames
-read -p "Enter the file path to the .docx document: " docx_path
+# Function to unzip, modify, and zip files based on file type (.docx/.odt)
+modify_document() {
+	local file_path="$1"
+	local current_date="$2"
+	local company_name="$3"
+	local file_type="$4"
+	local temp_file="$5"
 
-if [[ ! -f "$docx_path" ]]; then
-	echo "Error: The specified .docx file does not exist."
+	unzip -o "$temp_file" -d /tmp/contents
+
+	# Modify the XML file, depending on the file type
+	if [[ "$file_type" == "docx" ]]; then
+		# Modify word/document.xml
+		sed -i "s/\[Date\]/$current_date/g" /tmp/contents/word/document.xml
+		sed -i "s/\[Company\]/$company_name/g" /tmp/contents/word/document.xml
+	elif [[ "$file_type" == "odt" ]]; then
+		# Modify content.xml
+		sed -i "s/\[Date\]/$current_date/g" /tmp/contents/content.xml
+		sed -i "s/\[Company\]/$company_name/g" /tmp/contents/content.xml
+	fi
+
+	# Zip the contents back into the temporary file
+	cd /tmp/contents
+	zip -r "$temp_file" * > /dev/null
+	cd -
+}
+
+# Request input paths and filenames
+read -p "Enter the file path to the .docx or .odt document: " file_path
+
+if [[ ! -f "$file_path" ]]; then
+	echo "Error: The specified document does not exist."
+	exit 1
+fi
+
+# Determine the file type based on the extension
+file_extension="${file_path##*.}"
+
+if [[ "$file_extension" != "docx" && "$file_extension" != "odt" ]]; then
+	echo "Error: Unsupported file type. Please provide a .docx or .odt file."
 	exit 1
 fi
 
@@ -43,20 +78,19 @@ if [[ ! -d "$output_folder" ]]; then
 fi
 
 # Ensure paths are absolute
-docx_path=$(realpath "$docx_path")
+file_path=$(realpath "$file_path")
 output_folder=$(realpath "$output_folder")
 
 read -p "Replace potential [Date] and [Company]? (y/n) " edit_answer
 
 # Initialize variables
 pdf_name=""
-temp_docx_path=""
+temp_file=""
 company_name=""
 current_date=$(date +"%Y-%m-%d")
 
 # Edit the file, if requested
 if [[ "$edit_answer" == "y" || "$edit_answer" == "Y" ]]; then
-	# Request company name
 	company_name=""
 
 	while [[ -z "$company_name" ]]
@@ -66,21 +100,15 @@ if [[ "$edit_answer" == "y" || "$edit_answer" == "Y" ]]; then
 	
 	pdf_name="Personligt brev $company_name"
 
-	# Create a temporary copy of the .docx file
-	temp_docx_path=$(mktemp --suffix=".docx")
-	cp "$docx_path" "$temp_docx_path"
+	# Create a temporary copy of the file
+	temp_file=$(mktemp --suffix=".$file_extension")
+	cp "$file_path" "$temp_file"
 
-	# Use sed to replace [Date] and [Company] in the temporary file
-	unzip -o "$temp_docx_path" -d /tmp/docx_contents
-	sed -i "s/\[Date\]/$current_date/g" /tmp/docx_contents/word/document.xml
-	sed -i "s/\[Company\]/$company_name/g" /tmp/docx_contents/word/document.xml
-	
-	cd /tmp/docx_contents 
-	zip -r "$temp_docx_path" * > /dev/null
-	cd -
+	# Modify the document
+	modify_document "$file_path" "$current_date" "$company_name" "$file_extension" "$temp_file"
 
 	# Overwrite the input file path with the edited copy
-	docx_path="$temp_docx_path"
+	file_path="$temp_file"
 else 
 	read -p "Enter the desired PDF file name (without extension): " pdf_name
 fi
@@ -92,11 +120,11 @@ output_pdf="$output_folder/$pdf_name.pdf"
 output_pdf=$(handle_file_conflict "$output_pdf" "$pdf_name" "$output_folder")
 
 # Convert the .docx file to PDF using LibreOffice
-libreoffice --headless --convert-to pdf --outdir "$output_folder" "$docx_path"
+libreoffice --headless --convert-to pdf --outdir "$output_folder" "$file_path"
 
 # Rename the generated PDF to match the given name
-input_docx_base=$(basename "$docx_path" .docx)
-generated_pdf="$output_folder/$input_docx_base.pdf"
+input_file_base=$(basename "$file_path" ".$file_extension")
+generated_pdf="$output_folder/$input_file_base.pdf"
 
 if [[ -f "$generated_pdf" ]]; then
 	mv "$generated_pdf" "$output_pdf"
@@ -110,10 +138,10 @@ if [[ "$edit_answer" == "y" || "$edit_answer" == "Y" ]]; then
 	echo "Replaced [Date] with $current_date and [Company] with $company_name."
 
 	# Remove the temporary file after the PDF has been exported
-	rm -f "$temp_docx_path"
+	rm -f "$temp_file"
 fi
 
-# Clean up /tmp/docx_contents
-rm -rf /tmp/docx_contents
+# Clean up /tmp/contents
+rm -rf /tmp/contents
 
-echo "Successfully exported the specified document as a pdf to: $output_pdf"
+echo "Successfully exported the specified document as a PDF to: $output_pdf"
