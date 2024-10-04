@@ -36,17 +36,26 @@ modify_document() {
 	local temp_file="$5"
 
 	unzip -o "$temp_file" -d /tmp/contents
+	local path_to_xml=""
+	local placeholder_occurences=0
 
-	# Modify the XML file, depending on the file type
+	# Set the path to the document, depending on the file type
 	if [[ "$file_type" == "docx" ]]; then
-		# Modify word/document.xml
-		sed -i "s/\[Date\]/$current_date/g" /tmp/contents/word/document.xml
-		sed -i "s/\[Company\]/$company_name/g" /tmp/contents/word/document.xml
+		path_to_xml="tmp/contents/word/document.xml"	
 	elif [[ "$file_type" == "odt" ]]; then
-		# Modify content.xml
-		sed -i "s/\[Date\]/$current_date/g" /tmp/contents/content.xml
-		sed -i "s/\[Company\]/$company_name/g" /tmp/contents/content.xml
+		path_to_xml="/tmp/contents/content.xml"
 	fi
+
+	placeholder_occurences+=$(grep -o -E "\[Date\]"\|"\[Company\]" "$path_to_xml" | wc -l)
+
+	if [[ "$placeholder_occurences" -ne 2 ]]; then
+		echo "Error: The specified file does not contain one [Date] and one [Company]."
+		exit 1
+	fi
+	
+	# Modify the document
+	sed -i "s/\[Date\]/$current_date/g" "$path_to_xml"
+	sed -i "s/\[Company\]/$company_name/g" "$path_to_xml"
 
 	# Zip the contents back into the temporary file
 	cd /tmp/contents
@@ -145,3 +154,7 @@ fi
 rm -rf /tmp/contents
 
 echo "Successfully exported the specified document as a PDF to: $output_pdf"
+
+if command -v firefox &> /dev/null; then
+	firefox "$output_pdf" &
+fi
