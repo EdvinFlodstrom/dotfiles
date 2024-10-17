@@ -4,10 +4,10 @@ return {
     -- Font settings
     font_size = 16.0,
     font = wezterm.font_with_fallback({
-        {family="JetBrains Mono", weight="Regular", italic=false},
-        {family="JetBrains Mono", weight="Bold", italic=false},
-        {family="JetBrains Mono", weight="Regular", italic=true},
-        {family="JetBrains Mono", weight="Bold", italic=true},
+        {family="JetBrainsMono Nerd Font", weight="Regular", italic=false},
+        {family="JetBrainsMono Nerd Font", weight="Bold", italic=false},
+        {family="JetBrainsMono Nerd Font", weight="Regular", italic=true},
+        {family="JetBrainsMono Nerd Font", weight="Bold", italic=true},
     }),
 
     -- Window settings
