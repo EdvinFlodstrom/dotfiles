@@ -93,6 +93,12 @@ input * {
     # Start your launcher
     bindsym $mod+d exec wofi --show drun
 
+    # Capture partial screenshot
+    bindsym $mod+Shift+s exec grim -g "$(slurp)" ~/pictures/screenshots/partial-screenshot-$(date +'%Y-%m-%d-%H-%M-%S').png
+
+    # Capture full screenshot
+    bindsym $mod+Control+Shift+s exec grim  ~/pictures/screenshots/full-screenshot-$(date +'%Y-%m-%d-%H-%M-%S').png
+
     # Drag floating windows by holding down $mod and left mouse button.
     # Resize them with right mouse button + $mod.
     # Despite the name, also works for non-floating windows.
